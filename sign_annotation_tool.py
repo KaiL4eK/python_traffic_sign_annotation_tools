@@ -16,7 +16,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Process video with ANN')
 # parser.add_argument('-w', '--weights', action='store',      help='Path to weights file')
-parser.add_argument('-r', '--readonly',    action='store_true', help='Don`t modify dump file')
+parser.add_argument('-r', '--sliding_mode',    action='store_true', help='Don`t modify dump file')
 
 args = parser.parse_args()
 
@@ -26,8 +26,9 @@ label_list = ['stop', 'pedestrian', 'main road', 'bus']
 label_variables = [IntVar() for label in label_list]
 label_2_frame = None
 
-render_image_size = (1024, 768)
+render_image_size = (800, 600)
 
+slider_current_frame_idx = DoubleVar()
 current_frame_idx = 0
 current_frame = None
 image_widget = None
@@ -49,9 +50,6 @@ def loadAnnotation():
 	print('Dump successfully loaded')
 
 def saveAnnotation():
-
-	if args.readonly:
-		return
 
 	data = {}
 	data['label_list'] = label_list
@@ -75,17 +73,14 @@ def writeLabelValues():
 
 def readLabelValues():
 
-	print(label_2_frame.shape)
-	print(len(label_variables))
-
 	for i, label in enumerate(label_list):
 		label_variables[i].set( str(label_2_frame[current_frame_idx][i]) )
-
-		
 
 def refresh_image():
 	# grab a reference to the image panels
 	global image_widget
+
+	readLabelValues()
 
 	image_to_show = current_frame
 	rgb_image_to_show = cv2.cvtColor(image_to_show, cv2.COLOR_BGR2RGB)
@@ -107,20 +102,22 @@ def refresh_image():
 def nextFrame_cb():
 	global current_frame, current_frame_idx
 
-	writeLabelValues()
-
 	current_frame_idx = min( current_frame_idx + 1, frame_count - 1 )
-	cap.set(cv2.CAP_PROP_POS_FRAMES, float(current_frame_idx))
+	slider_current_frame_idx.set(current_frame_idx)
 	current_frame = read_frame(cap)
-	
+
+	if not args.sliding_mode:
+		writeLabelValues()
+
 	refresh_image()
 
 def prevFrame_cb():
 	global current_frame, current_frame_idx
 
 	current_frame_idx = max( current_frame_idx - 1, 0 )
+	slider_current_frame_idx.set(current_frame_idx)
+	cap.set(cv2.CAP_PROP_POS_FRAMES, float(current_frame_idx))
 	current_frame = read_frame(cap)
-	readLabelValues()
 	refresh_image()
 
 videoControlFrame = Frame(root)
@@ -133,9 +130,6 @@ def leftKey(event): prevFrame_cb()
 def rightKey(event): nextFrame_cb()
 root.bind('<Left>', leftKey)
 root.bind('<Right>', rightKey)
-
-# video_slider = Scale(videoControlFrame, from_=0, to=frame_count, orient=HORIZONTAL, command = videoTrackbarControl_cb, background='red')
-# video_slider.pack(side=RIGHT)
 
 # else:
 # 	original_image = cv2.imread(args.filepath)
@@ -161,8 +155,11 @@ if os.path.isfile(dump_filepath):
 modeListControlFrame = Frame(root)
 modeListControlFrame.grid(row=0, column=1, rowspan=2)
 
+def labelCheckbox_cb():
+	writeLabelValues()
+
 for i, label in enumerate(label_list): 
-	Checkbutton(modeListControlFrame, text=label, variable=label_variables[i]).grid(row=i, column=0, sticky='w', pady=5)
+	Checkbutton(modeListControlFrame, text=label, variable=label_variables[i], command=labelCheckbox_cb).grid(row=i, column=0, sticky='w', pady=5)
 
 ##############################################################
 
@@ -178,13 +175,6 @@ def read_frame(cap):
 
 	return read_frame
 
-# if file_as_video:
-# def videoTrackbarControl_cb(val):
-	# global current_frame
-	# cap.set(cv2.CAP_PROP_POS_FRAMES, float(val))
-
-	# refresh_image()
-
 cap = cv2.VideoCapture(filepath)
 frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT);
 
@@ -193,8 +183,20 @@ if label_2_frame is None or len(label_list) != label_2_frame.shape[1]:
 	label_2_frame = np.zeros((int(frame_count), len(label_list)), dtype=np.uint8)
 
 current_frame = read_frame(cap)
-readLabelValues()
 refresh_image()
+
+if args.sliding_mode:
+	def videoTrackbarControl_cb(val):
+		global current_frame, current_frame_idx
+
+		current_frame_idx = int(val)
+		cap.set(cv2.CAP_PROP_POS_FRAMES, float(current_frame_idx))
+		current_frame = read_frame(cap)
+		readLabelValues()
+		refresh_image()
+
+	video_slider = Scale(videoControlFrame, from_=0, to=frame_count, orient=HORIZONTAL, command=videoTrackbarControl_cb, variable=slider_current_frame_idx)
+	video_slider.pack(side=RIGHT, fill=BOTH, expand=True)
 
 root.resizable(0,0)
 root.mainloop()
