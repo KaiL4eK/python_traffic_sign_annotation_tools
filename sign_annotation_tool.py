@@ -16,7 +16,8 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Process video with ANN')
 # parser.add_argument('-w', '--weights', action='store',      help='Path to weights file')
-parser.add_argument('-r', '--sliding_mode',    action='store_true', help='Don`t modify dump file')
+parser.add_argument('-s', '--sliding_mode',    action='store_true', help='Don`t modify dump file')
+parser.add_argument('-d', '--debug',    action='store_true', help='Debug (for development)')
 
 args = parser.parse_args()
 
@@ -131,18 +132,12 @@ def rightKey(event): nextFrame_cb()
 root.bind('<Left>', leftKey)
 root.bind('<Right>', rightKey)
 
-# else:
-# 	original_image = cv2.imread(args.filepath)
-# 	if original_image is None:
-# 		rospy.logerr('Unable to open file')
-# 		exit(1)
-
-# 	original_image = cv2.resize(original_image, render_image_size, interpolation = cv2.INTER_LINEAR)
-
 ##############################################################
 
-# filepath = tkFileDialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files","*.mp4"),("all files","*.*")))
-filepath = '/home/alexey/data/keras_traffic_NN/raw_data/CarRegister_Videos/EMER0007.MP4'
+if args.debug:
+	filepath = '/home/alexey/data/keras_traffic_NN/raw_data/CarRegister_Videos/EMER0007.MP4'
+else:
+	filepath = tkFileDialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files","*.mp4"),("all files","*.*")))
 
 dump_filepath = filepath.split('.')[0] + ".json"
 
@@ -152,14 +147,18 @@ if os.path.isfile(dump_filepath):
 
 ##############################################################
 
-modeListControlFrame = Frame(root)
-modeListControlFrame.grid(row=0, column=1, rowspan=2)
+controlFrame = Frame(root)
+controlFrame.grid(row=0, column=1, rowspan=2)
+
+ChkBoxControlFrame = Frame(controlFrame)
+ChkBoxControlFrame.grid(row=0, column=0)
+
 
 def labelCheckbox_cb():
 	writeLabelValues()
 
 for i, label in enumerate(label_list): 
-	Checkbutton(modeListControlFrame, text=label, variable=label_variables[i], command=labelCheckbox_cb).grid(row=i, column=0, sticky='w', pady=5)
+	Checkbutton(ChkBoxControlFrame, text=label, variable=label_variables[i], command=labelCheckbox_cb).grid(row=i, column=0, sticky='w', pady=5)
 
 ##############################################################
 
