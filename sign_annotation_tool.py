@@ -1,0 +1,200 @@
+#!/usr/bin/env python
+
+import numpy as np
+import os
+
+from Tkinter import *
+from PIL import Image
+from PIL import ImageTk
+import cv2
+
+import json
+
+import Tkconstants, tkFileDialog
+
+import argparse
+
+parser = argparse.ArgumentParser(description='Process video with ANN')
+# parser.add_argument('-w', '--weights', action='store',      help='Path to weights file')
+parser.add_argument('-r', '--readonly',    action='store_true', help='Don`t modify dump file')
+
+args = parser.parse_args()
+
+root = Tk()
+
+label_list = ['stop', 'pedestrian', 'main road', 'bus']
+label_variables = [IntVar() for label in label_list]
+label_2_frame = None
+
+render_image_size = (1024, 768)
+
+current_frame_idx = 0
+current_frame = None
+image_widget = None
+
+##############################################################
+
+def loadAnnotation():
+	global label_list, label_2_frame, label_variables
+
+	load_data = None
+	with open(dump_filepath, 'r') as infile:
+		load_data = json.load(infile)
+
+	label_list = load_data['label_list']
+	label_variables = [IntVar() for label in label_list]
+	label_2_frame = np.array(load_data['label_values'])
+	#Reinitialize checkbox variables
+	
+	print('Dump successfully loaded')
+
+def saveAnnotation():
+
+	if args.readonly:
+		return
+
+	data = {}
+	data['label_list'] = label_list
+	data['label_values'] = label_2_frame.tolist()
+
+	with open(dump_filepath, 'w') as outfile:
+		json.dump(data, outfile)
+
+	print('Dump successfully writed')
+
+def space_cb(event): saveAnnotation()
+
+root.bind("<space>", space_cb)
+
+def writeLabelValues():
+
+	for i, label in enumerate(label_list):
+		label_2_frame[current_frame_idx][i] = label_variables[i].get()
+
+		# print( label, 'is', label_variables[i].get() )
+
+def readLabelValues():
+
+	print(label_2_frame.shape)
+	print(len(label_variables))
+
+	for i, label in enumerate(label_list):
+		label_variables[i].set( str(label_2_frame[current_frame_idx][i]) )
+
+		
+
+def refresh_image():
+	# grab a reference to the image panels
+	global image_widget
+
+	image_to_show = current_frame
+	rgb_image_to_show = cv2.cvtColor(image_to_show, cv2.COLOR_BGR2RGB)
+
+	# convert the images to PIL format and then to ImageTk format
+	img = ImageTk.PhotoImage(Image.fromarray(rgb_image_to_show))
+
+	if image_widget is None:
+		image_widget = Label(image=img)
+		image_widget.image = img
+		image_widget.grid(row=1, column=0, padx=5, pady=5)
+	else:
+		# update the pannels
+		image_widget.configure(image=img)
+		image_widget.image = img
+
+##############################################################
+
+def nextFrame_cb():
+	global current_frame, current_frame_idx
+
+	writeLabelValues()
+
+	current_frame_idx = min( current_frame_idx + 1, frame_count - 1 )
+	cap.set(cv2.CAP_PROP_POS_FRAMES, float(current_frame_idx))
+	current_frame = read_frame(cap)
+	
+	refresh_image()
+
+def prevFrame_cb():
+	global current_frame, current_frame_idx
+
+	current_frame_idx = max( current_frame_idx - 1, 0 )
+	current_frame = read_frame(cap)
+	readLabelValues()
+	refresh_image()
+
+videoControlFrame = Frame(root)
+videoControlFrame.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+
+Button(videoControlFrame, text='Next ->', command=nextFrame_cb).pack(side=RIGHT, padx=5, pady=5)
+Button(videoControlFrame, text='<- Prev', command=prevFrame_cb).pack(side=LEFT, padx=5, pady=5)
+
+def leftKey(event): prevFrame_cb()
+def rightKey(event): nextFrame_cb()
+root.bind('<Left>', leftKey)
+root.bind('<Right>', rightKey)
+
+# video_slider = Scale(videoControlFrame, from_=0, to=frame_count, orient=HORIZONTAL, command = videoTrackbarControl_cb, background='red')
+# video_slider.pack(side=RIGHT)
+
+# else:
+# 	original_image = cv2.imread(args.filepath)
+# 	if original_image is None:
+# 		rospy.logerr('Unable to open file')
+# 		exit(1)
+
+# 	original_image = cv2.resize(original_image, render_image_size, interpolation = cv2.INTER_LINEAR)
+
+##############################################################
+
+# filepath = tkFileDialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files","*.mp4"),("all files","*.*")))
+filepath = '/home/alexey/data/keras_traffic_NN/raw_data/CarRegister_Videos/EMER0007.MP4'
+
+dump_filepath = filepath.split('.')[0] + ".json"
+
+if os.path.isfile(dump_filepath):
+	print('Dump file is found: ' + dump_filepath)
+	loadAnnotation()
+
+##############################################################
+
+modeListControlFrame = Frame(root)
+modeListControlFrame.grid(row=0, column=1, rowspan=2)
+
+for i, label in enumerate(label_list): 
+	Checkbutton(modeListControlFrame, text=label, variable=label_variables[i]).grid(row=i, column=0, sticky='w', pady=5)
+
+##############################################################
+
+print('Video file: ' + filepath) 
+
+def read_frame(cap):
+	ret, new_frame = cap.read()
+	if new_frame is not None:
+		read_frame = cv2.resize(new_frame, render_image_size, interpolation = cv2.INTER_LINEAR)
+	else:
+		print('Error: failed to read frame')
+		read_frame = current_frame
+
+	return read_frame
+
+# if file_as_video:
+# def videoTrackbarControl_cb(val):
+	# global current_frame
+	# cap.set(cv2.CAP_PROP_POS_FRAMES, float(val))
+
+	# refresh_image()
+
+cap = cv2.VideoCapture(filepath)
+frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT);
+
+if label_2_frame is None or len(label_list) != label_2_frame.shape[1]:
+	print('Initializing label array from scratch')
+	label_2_frame = np.zeros((int(frame_count), len(label_list)), dtype=np.uint8)
+
+current_frame = read_frame(cap)
+readLabelValues()
+refresh_image()
+
+root.resizable(0,0)
+root.mainloop()
