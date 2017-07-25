@@ -16,7 +16,6 @@ import Tkconstants, tkFileDialog, tkSimpleDialog
 import argparse
 
 parser = argparse.ArgumentParser(description='Process video with ANN')
-# parser.add_argument('-w', '--weights', action='store',      help='Path to weights file')
 parser.add_argument('-s', '--sliding_mode',    action='store_true', help='Don`t modify dump file')
 parser.add_argument('-d', '--debug',    action='store_true', help='Debug (for development)')
 
@@ -28,7 +27,7 @@ label_list = ['stop', 'pedestrian', 'main road', 'bus']
 label_variables = [IntVar() for label in label_list]
 label_2_frame = None
 
-render_image_size = (800, 600)
+render_image_size = (640, 480)
 
 slider_current_frame_idx = DoubleVar()
 current_frame_idx = 0
@@ -101,6 +100,7 @@ def refresh_image():
 	if image_widget is None:
 		image_widget = Label(image=img)
 		image_widget.image = img
+
 		image_widget.grid(row=1, column=0, padx=5, pady=5)
 	else:
 		# update the pannels
@@ -149,8 +149,6 @@ def leftKey(event):
 	if command_executed:
 		command_executed = False
 		root.after(50, execute_command)	
-
-
 
 def rightKey(event): nextFrame_cb()
 root.bind('<Left>', leftKey)
