@@ -147,7 +147,7 @@ def saving_label_window():
 	ChkBoxControlFrame.grid(row=0, column=4)
 
 	for i, label in enumerate(label_list_explanation): 
-		Checkbutton(ChkBoxControlFrame, text=label, variable=label_variables[i]).grid(row=i, column=4, sticky='w', padx=5, pady=5)
+		tk.Checkbutton(ChkBoxControlFrame, text=label, variable=label_variables[i]).grid(row=i, column=4, sticky='w', padx=5, pady=5)
 
 	tk.Button(top, text='Ok', command=save_label_btn_cb).grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 	tk.Button(top, text='Cancel', command=cancel_label_btn_cb).grid(row=1, column=2, columnspan=2, padx=5, pady=5)
