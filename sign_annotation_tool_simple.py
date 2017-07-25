@@ -4,9 +4,11 @@ import numpy as np
 import os
 from time import sleep
 
-from Tkinter import *
 from PIL import Image
 from PIL import ImageTk
+import Tkinter as tk
+
+
 import cv2
 
 import json
@@ -47,18 +49,18 @@ class Rectangle:
 	    self.ul = ul
 	    self.lr = lr
 
-root = Tk()
+root = tk.Tk()
 
 filename_temp = '%d:%s.png'
 last_inactive_file_id = 0
 
 label_list_explanation 	= ['Stop', 'Pedestrian', 'Main road', 'Bus stop']
 label_list 				= ['stop', 'pedestrian', 'main_road', 'bus_stop']
-label_variables = [IntVar() for label in label_list]
+label_variables = [tk.IntVar() for label in label_list]
 
 render_image_size = (640, 480)
 
-slider_current_frame_idx = DoubleVar()
+slider_current_frame_idx = tk.DoubleVar()
 current_frame_idx = 0
 current_frame = None
 full_size_frame = None
@@ -117,14 +119,14 @@ def saving_label_window():
 	ul_fs_y = int(ul_y * full_size_frame.shape[0])
 	lr_fs_y = int(lr_y * full_size_frame.shape[0])
 
-	top = Toplevel()
+	top = tk.Toplevel()
 	top.title('Thresh image')
 
 	thresh_image = full_size_frame[ul_fs_y:lr_fs_y, ul_fs_x:lr_fs_x]
 	thresh_image_tk = cv2.cvtColor(thresh_image, cv2.COLOR_BGR2RGB)
 	thresh_image_tk = cv2.resize(thresh_image_tk, (320, 240), interpolation = cv2.INTER_LINEAR)
 	thresh_image_tk = ImageTk.PhotoImage(Image.fromarray(thresh_image_tk))
-	thresh_image_widget = Label(top, image=thresh_image_tk)
+	thresh_image_widget = tk.Label(top, image=thresh_image_tk)
 	thresh_image_widget.image = thresh_image_tk
 	thresh_image_widget.grid(row=0, column=0, columnspan=3, padx=5, pady=5)
 
@@ -141,14 +143,14 @@ def saving_label_window():
 	def cancel_label_btn_cb():
 		top.destroy()
 
-	ChkBoxControlFrame = Frame(top)
+	ChkBoxControlFrame = tk.Frame(top)
 	ChkBoxControlFrame.grid(row=0, column=4)
 
 	for i, label in enumerate(label_list_explanation): 
 		Checkbutton(ChkBoxControlFrame, text=label, variable=label_variables[i]).grid(row=i, column=4, sticky='w', padx=5, pady=5)
 
-	Button(top, text='Ok', command=save_label_btn_cb).grid(row=1, column=0, columnspan=2, padx=5, pady=5)
-	Button(top, text='Cancel', command=cancel_label_btn_cb).grid(row=1, column=2, columnspan=2, padx=5, pady=5)
+	tk.Button(top, text='Ok', command=save_label_btn_cb).grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+	tk.Button(top, text='Cancel', command=cancel_label_btn_cb).grid(row=1, column=2, columnspan=2, padx=5, pady=5)
 
 
 def refresh_image():
@@ -163,7 +165,7 @@ def refresh_image():
 	img_tk = ImageTk.PhotoImage(Image.fromarray(rgb_image_to_show))
 
 	if image_widget is None:
-		image_widget = Label(image=img_tk)
+		image_widget = tk.Label(image=img_tk)
 		image_widget.image = img_tk
 
 		image_widget.grid(row=1, column=0, padx=5, pady=5)
@@ -218,11 +220,11 @@ def prevFrame_cb():
 	current_frame = read_frame(cap)
 	refresh_image()
 
-videoControlFrame = Frame(root)
+videoControlFrame = tk.Frame(root)
 videoControlFrame.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
 
-Button(videoControlFrame, text='Next ->', command=nextFrame_cb).pack(side=RIGHT, padx=5, pady=5)
-Button(videoControlFrame, text='<- Prev', command=prevFrame_cb).pack(side=LEFT, padx=5, pady=5)
+tk.Button(videoControlFrame, text='Next ->', command=nextFrame_cb).pack(side=tk.RIGHT, padx=5, pady=5)
+tk.Button(videoControlFrame, text='<- Prev', command=prevFrame_cb).pack(side=tk.LEFT, padx=5, pady=5)
 
 command_executed = True
 
@@ -275,8 +277,8 @@ def videoTrackbarControl_cb(val):
 	# readLabelValues()
 	refresh_image()
 
-video_slider = Scale(videoControlFrame, from_=0, to=frame_count-1, orient=HORIZONTAL, command=videoTrackbarControl_cb, variable=slider_current_frame_idx)
-video_slider.pack(side=RIGHT, fill=BOTH, expand=True)
+video_slider = tk.Scale(videoControlFrame, from_=0, to=frame_count-1, orient=tk.HORIZONTAL, command=videoTrackbarControl_cb, variable=slider_current_frame_idx)
+video_slider.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
 root.resizable(0,0)
 root.mainloop()
