@@ -196,7 +196,7 @@ if not os.path.exists(save_folder):
 files = os.listdir(save_folder)
 for file in files:
 	current_id = int(file.split(':')[0])
-	last_inactive_file_id = max(last_inactive_file_id, current_id) + 1
+	last_inactive_file_id = max(last_inactive_file_id, current_id + 1)
 
 print('Last id: %d' % last_inactive_file_id)
 
