@@ -51,7 +51,8 @@ class Rectangle:
 
 root = tk.Tk()
 
-filename_temp = '%d:%s.png'
+# Id, frame_id, pixel_bb, classes
+filename_temp = '%d:%d:%s:%s.png'
 last_inactive_file_id = 0
 
 label_list_explanation 	= ['Stop', 'Pedestrian', 'Main road', 'Bus stop']
@@ -133,7 +134,9 @@ def saving_label_window():
 	def save_label_btn_cb():
 		global last_inactive_file_id
 
-		filepath = filename_temp % (last_inactive_file_id, ','.join(label_list[i] for i, l_val in enumerate(label_variables) if l_val.get() == 1 ))
+		filepath = filename_temp % (last_inactive_file_id, current_frame_idx, 
+									','.join(str(i) for i in [ul_fs_x, ul_fs_y, lr_fs_x, lr_fs_y]), 
+									','.join(label_list[i] for i, l_val in enumerate(label_variables) if l_val.get() == 1 ))
 		last_inactive_file_id += 1
 
 		cv2.imwrite( os.path.join(save_folder, filepath), thresh_image )
