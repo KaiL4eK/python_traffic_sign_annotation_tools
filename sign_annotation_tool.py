@@ -1,17 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import os
 from time import sleep
 
-from Tkinter import *
+from tkinter import *
 from PIL import Image
 from PIL import ImageTk
 import cv2
 
 import json
 
-import Tkconstants, tkFileDialog, tkSimpleDialog
+import tkinter.constants, tkinter.filedialog, tkinter.simpledialog
 
 import argparse
 
@@ -42,9 +42,9 @@ def appendNewLabel(label_name):
 	newIntVar = IntVar()
 	Checkbutton(ChkBoxControlFrame, text=label_name, variable=newIntVar, command=labelCheckbox_cb).grid(row=len(label_list), column=0, sticky='w', pady=5)
 
- 	label_list.append(label_name)
- 	label_variables.append(newIntVar)
- 	label_2_frame = np.hstack((label_2_frame, np.zeros((label_2_frame.shape[0],1), dtype=np.uint8)))
+	label_list.append(label_name)
+	label_variables.append(newIntVar)
+	label_2_frame = np.hstack((label_2_frame, np.zeros((label_2_frame.shape[0],1), dtype=np.uint8)))
 
 def loadAnnotation():
 	global label_list, label_2_frame, label_variables
@@ -159,7 +159,7 @@ root.bind('<Right>', rightKey)
 if args.debug:
 	filepath = '/home/alexey/data/keras_traffic_NN/raw_data/CarRegister_Videos/EMER0007.MP4'
 else:
-	filepath = tkFileDialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files","*.mp4"),("all files","*.*")))
+	filepath = tkinter.filedialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files","*.mp4"),("all files","*.*")))
 
 if not filepath:
 	exit(1)
@@ -188,7 +188,7 @@ ContolBtnsFrame = Frame(controlFrame)
 ContolBtnsFrame.grid(row=1, column=0)
 
 def addLabel_cb():
-	new_label_name = tkSimpleDialog.askstring("Label name prompt", "enter label name")
+	new_label_name = tkinter.simpledialog.askstring("Label name prompt", "enter label name")
 	if new_label_name:
 		appendNewLabel(new_label_name)
 		print('Label added: ' + new_label_name)

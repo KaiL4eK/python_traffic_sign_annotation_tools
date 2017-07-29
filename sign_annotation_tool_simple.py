@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import os
@@ -6,14 +6,14 @@ from time import sleep
 
 from PIL import Image
 from PIL import ImageTk
-import Tkinter as tk
+import tkinter as tk
 
 
 import cv2
 
 import json
 
-import Tkconstants, tkFileDialog, tkSimpleDialog
+import tkinter.constants, tkinter.filedialog, tkinter.simpledialog
 
 import argparse
 
@@ -193,7 +193,7 @@ def refresh_image():
 if args.debug:
 	filepath = '/home/alexey/data/keras_traffic_NN/raw_data/CarRegister_Videos/EMER0007.MP4'
 else:
-	filepath = tkFileDialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files",("*.mp4", "*.MP4")),("all files","*.*")))
+	filepath = tkinter.filedialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files",("*.mp4", "*.MP4")),("all files","*.*")))
 
 if not filepath:
 	exit(1)
