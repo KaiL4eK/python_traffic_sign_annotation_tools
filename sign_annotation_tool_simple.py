@@ -120,10 +120,18 @@ def saving_label_window():
 	ul_fs_y = int(ul_y * full_size_frame.shape[0])
 	lr_fs_y = int(lr_y * full_size_frame.shape[0])
 
+	# print('{}, {}, {}, {}'.format(ul_fs_x, lr_fs_x, ul_fs_y, lr_fs_y))
+
+	ul_fs_arr_x = min(ul_fs_x, lr_fs_x)
+	ul_fs_arr_y = min(ul_fs_y, lr_fs_y)
+
+	lr_fs_arr_x = max(ul_fs_x, lr_fs_x)
+	lr_fs_arr_y = max(ul_fs_y, lr_fs_y)
+
 	top = tk.Toplevel()
 	top.title('Thresh image')
 
-	thresh_image = full_size_frame[ul_fs_y:lr_fs_y, ul_fs_x:lr_fs_x]
+	thresh_image = full_size_frame[ul_fs_arr_y:lr_fs_arr_y, ul_fs_arr_x:lr_fs_arr_x]
 	thresh_image_tk = cv2.cvtColor(thresh_image, cv2.COLOR_BGR2RGB)
 	thresh_image_tk = cv2.resize(thresh_image_tk, (320, 240), interpolation = cv2.INTER_LINEAR)
 	thresh_image_tk = ImageTk.PhotoImage(Image.fromarray(thresh_image_tk))
@@ -135,7 +143,7 @@ def saving_label_window():
 		global last_inactive_file_id
 
 		filepath = filename_temp % (last_inactive_file_id, current_frame_idx, 
-									','.join(str(i) for i in [ul_fs_x, ul_fs_y, lr_fs_x, lr_fs_y]), 
+									','.join(str(i) for i in [ul_fs_arr_x, ul_fs_arr_y, lr_fs_arr_x, lr_fs_arr_y]), 
 									','.join(label_list[i] for i, l_val in enumerate(label_variables) if l_val.get() == 1 ))
 		last_inactive_file_id += 1
 
