@@ -256,7 +256,7 @@ def leftKey(event):
 
 	if command_executed:
 		command_executed = False
-		root.after(50, execute_command)	
+		root.after(1, execute_command)	
 
 def rightKey(event): nextFrame_cb()
 root.bind('<Left>', leftKey)
