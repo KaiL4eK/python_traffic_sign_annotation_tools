@@ -107,8 +107,8 @@ class AnnotatedImage:
 
 		self.isInitialized = True
 
-	def rename_image_file(self, label_list):
-		new_filename = self.filename_temp % (self.id, self.frame_idx, self.bbox_str, ','.join(label_list))
+	def rename_image_file(self, new_label_list):
+		new_filename = self.filename_temp % (self.id, self.frame_idx, self.bbox_str, ','.join(new_label_list))
 		new_filepath = os.path.join(self.dirpath, new_filename)
 
 		print('Replacing \n%s\nwith\n%s' % (self.filepath, new_filepath))
@@ -116,6 +116,7 @@ class AnnotatedImage:
 
 		self.filepath = new_filepath
 		self.filename = new_filename
+		self.label_list = new_label_list
 
 	def remove_image_file(self):
 		print('Removing %s' % self.filepath)
@@ -192,7 +193,7 @@ def main():
 	def save_label_btn_cb():
 		new_label_list = (label_list[i] for i, l_val in enumerate(label_variables) if l_val.get() == 1)
 		
-		current_annotated_image.rename_image_file(new_label_list)
+		current_annotated_image.rename_image_file(list(new_label_list))
 
 	def remove_label_btn_cb():
 		global current_annotated_image, current_annotated_image_idx
