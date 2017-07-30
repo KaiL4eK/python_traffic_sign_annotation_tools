@@ -42,6 +42,7 @@ current_annotated_image_idx = 0
 render_image_size 			= (640, 480)
 slider_current_frame_idx 	= tk.DoubleVar()
 image_widget				= None
+path_widget					= tk.LabelFrame(root)
 
 def refresh_data():
 	global image_widget
@@ -52,11 +53,15 @@ def refresh_data():
 	img_tk = ImageTk.PhotoImage(Image.fromarray(rgb_image_to_show))
 
 	if image_widget is None:
-		image_widget = tk.Label(image=img_tk)
+		path_widget.grid(row=1, column=0, padx=5, pady=5)
+		path_widget.configure(text = os.path.join(os.path.basename(current_annotated_image.dirpath),current_annotated_image.filename))
+
+		image_widget = tk.Label(path_widget, image=img_tk)
 		image_widget.image = img_tk
 
-		image_widget.grid(row=1, column=0, padx=5, pady=5)
+		image_widget.pack()
 	else:
+		path_widget.configure(text = os.path.join(os.path.basename(current_annotated_image.dirpath),current_annotated_image.filename))
 		image_widget.configure(image=img_tk)
 		image_widget.image = img_tk
 
@@ -190,10 +195,14 @@ def main():
 	BtnControlFrame = tk.Frame(ChkBoxControlFrame)
 	BtnControlFrame.grid(row=len(label_list)+1, column=0)
 
+
+
 	def save_label_btn_cb():
 		new_label_list = (label_list[i] for i, l_val in enumerate(label_variables) if l_val.get() == 1)
 		
 		current_annotated_image.rename_image_file(list(new_label_list))
+
+		refresh_data()
 
 	def remove_label_btn_cb():
 		global current_annotated_image, current_annotated_image_idx
