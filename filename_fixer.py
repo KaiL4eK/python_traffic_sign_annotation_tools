@@ -19,23 +19,6 @@ def main():
 		newname = path.replace(old_module_delimiter, new_module_delimiter)
 		if newname != path:
 			os.rename(path, newname)
-	
-	return
-
-	root_file_list = os.listdir(args.root)
-	for i in root_file_list:
-		i_path = os.path.join(args.root, i)
-		if os.path.isdir(i_path):
-			for image_name in os.listdir(i_path):
-
-				if old_module_delimiter in image_name:
-					new_image_name = image_name.replace(old_module_delimiter, new_module_delimiter)
-					old_image_path = os.path.join(i_path, image_name)
-					new_image_path = os.path.join(i_path, new_image_name)
-
-					print('Rename from %s to %s' % (old_image_path, new_image_path))
-
-					os.rename(old_image_path, new_image_name)
 
 if __name__ == '__main__':
 	main()
