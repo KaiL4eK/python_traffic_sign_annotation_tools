@@ -115,7 +115,7 @@ class AnnotatedImage:
 		os.rename(self.filepath, new_filepath)
 
 		self.filepath = new_filepath
-		self.filename = self.new_filename
+		self.filename = new_filename
 
 	def remove_image_file(self):
 		print('Removing %s' % self.filepath)
