@@ -59,7 +59,7 @@ class Rectangle:
 root = tk.Tk()
 
 # Id, frame_id, pixel_bb, classes
-filename_temp = '%d:%d:%s:%s.png'
+filename_temp = '%d-%d-%s-%s.png'
 last_inactive_file_id = 0
 
 label_list_explanation 	= ['Stop', 'Pedestrian', 'Main road', 'Bus stop']
