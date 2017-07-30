@@ -1,19 +1,26 @@
-#!/usr/bin/env python3
-
+import cv2
 import numpy as np
 import os
 from time import sleep
 
 from PIL import Image
 from PIL import ImageTk
-import tkinter as tk
 
 
-import cv2
 
-import json
+python3_used = True
+import sys
+if sys.version_info[0] < 3:
+	python3_used = False
 
-import tkinter.constants, tkinter.filedialog, tkinter.simpledialog
+if python3_used:
+	import tkinter as tk
+	import tkinter.filedialog as tkFileDialog
+else:
+	import Tkinter as tk
+	import tkFileDialog
+
+
 
 import argparse
 
@@ -193,7 +200,7 @@ def refresh_image():
 if args.debug:
 	filepath = '/home/alexey/data/keras_traffic_NN/raw_data/CarRegister_Videos/EMER0007.MP4'
 else:
-	filepath = tkinter.filedialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files",("*.mp4", "*.MP4")),("all files","*.*")))
+	filepath = tkFileDialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files",("*.mp4", "*.MP4")),("all files","*.*")))
 
 if not filepath:
 	exit(1)

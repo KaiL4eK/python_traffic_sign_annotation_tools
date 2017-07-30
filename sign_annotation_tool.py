@@ -1,17 +1,27 @@
-#!/usr/bin/env python3
-
 import numpy as np
 import os
 from time import sleep
-
-from tkinter import *
 from PIL import Image
 from PIL import ImageTk
 import cv2
-
 import json
 
-import tkinter.constants, tkinter.filedialog, tkinter.simpledialog
+
+
+python3_used = True
+import sys
+if sys.version_info[0] < 3:
+	python3_used = False
+
+if python3_used:
+	from tkinter import *
+	import tkinter.filedialog as tkFileDialog
+	import tkinter.simpledialog	as tkSimpleDialog
+else:
+	from Tkinter import *
+	import tkFileDialog, tkSimpleDialog
+
+
 
 import argparse
 
@@ -159,7 +169,7 @@ root.bind('<Right>', rightKey)
 if args.debug:
 	filepath = '/home/alexey/data/keras_traffic_NN/raw_data/CarRegister_Videos/EMER0007.MP4'
 else:
-	filepath = tkinter.filedialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files","*.mp4"),("all files","*.*")))
+	filepath = tkFileDialog.askopenfilename(initialdir = os.path.expanduser('~'), title = "Select file", filetypes = (("video files","*.mp4"),("all files","*.*")))
 
 if not filepath:
 	exit(1)
@@ -188,7 +198,7 @@ ContolBtnsFrame = Frame(controlFrame)
 ContolBtnsFrame.grid(row=1, column=0)
 
 def addLabel_cb():
-	new_label_name = tkinter.simpledialog.askstring("Label name prompt", "enter label name")
+	new_label_name = tkSimpleDialog.askstring("Label name prompt", "enter label name")
 	if new_label_name:
 		appendNewLabel(new_label_name)
 		print('Label added: ' + new_label_name)
