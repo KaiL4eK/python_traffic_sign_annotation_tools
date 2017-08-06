@@ -18,11 +18,9 @@ else:
 	import Tkinter as tk
 	import tkFileDialog
 
-
-
 import argparse
 
-parser = argparse.ArgumentParser(description='Process video with ANN')
+parser = argparse.ArgumentParser(description='Process annotated frames for corretion')
 parser.add_argument('root', action='store', help='Root of annotations')
 
 args = parser.parse_args()
@@ -52,16 +50,19 @@ def refresh_data():
 	rgb_image_to_show = cv2.cvtColor(cv2.resize(image_to_show, render_image_size), cv2.COLOR_BGR2RGB)
 	img_tk = ImageTk.PhotoImage(Image.fromarray(rgb_image_to_show))
 
+	frame_path = os.path.join(os.path.basename(current_annotated_image.dirpath),current_annotated_image.filename)
+	frame_text = frame_path + ' (%dx%d)' % (current_annotated_image.image.shape[1], current_annotated_image.image.shape[0])
+
 	if image_widget is None:
 		path_widget.grid(row=1, column=0, padx=5, pady=5)
-		path_widget.configure(text = os.path.join(os.path.basename(current_annotated_image.dirpath),current_annotated_image.filename))
+		path_widget.configure(text = frame_text)
 
 		image_widget = tk.Label(path_widget, image=img_tk)
 		image_widget.image = img_tk
 
 		image_widget.pack()
 	else:
-		path_widget.configure(text = os.path.join(os.path.basename(current_annotated_image.dirpath),current_annotated_image.filename))
+		path_widget.configure(text = frame_text)
 		image_widget.configure(image=img_tk)
 		image_widget.image = img_tk
 
